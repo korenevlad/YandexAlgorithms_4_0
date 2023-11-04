@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -56,6 +57,74 @@ namespace YandexAlgorithms_4_0
                 {
                     Console.WriteLine(k);
                 }
+            }
+        }
+
+        public static decimal C_Solution(string a)
+        {
+            int[] coordinates = a.Split(" ").Select(int.Parse).ToArray();
+            int xa = coordinates[0];
+            int ya = coordinates[1];
+            int xb = coordinates[2];
+            int yb = coordinates[3];
+
+            decimal resultEasyWay = EasyWay(xa, ya, xb, yb);
+            decimal resultHardWay = HardWay(xa, ya, xb, yb);
+
+            return Math.Min(resultEasyWay, resultHardWay);
+
+            decimal EasyWay(int xa, int ya, int xb, int yb)
+            {
+                decimal rA = (decimal)Math.Sqrt(Math.Pow(xa, 2) + Math.Pow(ya, 2));
+                decimal rB = (decimal)Math.Sqrt(Math.Pow(xb, 2) + Math.Pow(yb, 2));
+                decimal result = rA + rB;
+                return result;
+            }
+
+            decimal HardWay(int xa, int ya, int xb, int yb)
+            {
+                decimal rA = (decimal)Math.Sqrt(Math.Pow(xa, 2) + Math.Pow(ya, 2));
+                decimal rB = (decimal)Math.Sqrt(Math.Pow(xb, 2) + Math.Pow(yb, 2));
+
+                int xMin = 0;
+                int yMin = 0;
+                int xMax = 0;
+                int yMax = 0;
+                decimal minRadius = 0;
+                decimal maxRadius = 0;
+
+                if (rA <= rB)
+                {
+                    minRadius = rA;
+                    xMin = xa;
+                    yMin = ya;
+
+                    maxRadius = rB;
+                    xMax = xb;
+                    yMax = yb;
+                }
+                else{
+                    minRadius = rB;
+                    xMin = xb;
+                    yMin = yb;
+
+                    maxRadius = rA;
+                    xMax = xa;
+                    yMax = ya;
+                }
+
+                decimal firstPart = maxRadius - minRadius;
+
+                decimal minCorner = (decimal)Math.Atan2(yMin, xMin);
+                decimal maxCorner = (decimal)Math.Atan2(yMax,xMax);
+
+                decimal angleDifference = maxCorner - minCorner;
+                angleDifference = Math.Abs((angleDifference + (decimal)Math.PI) % (2 * (decimal)Math.PI) - (decimal)Math.PI);
+
+                decimal secondPart = angleDifference * minRadius;
+
+                decimal result = firstPart + secondPart;
+                return result;
             }
         }
 
@@ -130,11 +199,88 @@ namespace YandexAlgorithms_4_0
             }
         }
 
+        public static void F_Solution(string a, string b)
+        {
+            int.TryParse(a, out int k);
+            int.TryParse(b, out int n);
+            int[] floors = new int[n];
+            for (int i = 0; i < n; i++)
+            {
+                int.TryParse(Console.ReadLine(), out int floor);
+                floors[i] = floor;
+            }
+
+            int ptr = 0;
+            for (int i = floors.Length - 1; i > 0; i--)
+            {
+                if (floors[i] != 0)
+                {
+                    ptr = i;
+                    break;
+                }
+            }
+
+            int sumTime = 0;
+            while (ptr >= 0)
+            {
+                int countPerson = 0;
+                sumTime += 2 * (ptr + 1);
+                for (int i = ptr; i >= 0; i--)
+                {
+                    bool flag = false;
+                    bool flagZero = false;
+                    if (countPerson < k && (k - countPerson) < floors[i])// если лифт не заполнен и свободных мест в лифте меньше чем на этаже
+                    {
+                        int dif = k - countPerson;
+                        countPerson += dif;
+                        floors[i] = floors[i] - dif;
+                        flag = true;
+                    }
+                    if (countPerson < k && (k - countPerson) >= floors[i] && flag == false && floors[i]!=0)// если лифт не заполнен, но на этаже можно забрать всех
+                    {
+                        countPerson += floors[i];
+                        floors[i] = 0;
+                        flagZero = true;
+                    }
+                    if (flagZero == true)
+                    {
+                        if (i == 0)
+                        {
+                            ptr = -1;
+                        }
+                        else
+                        {
+                            int j = i - 1;
+                            while (j != -1 && floors[j] == 0)
+                            {
+                                if (j != 0)
+                                {
+                                    j--;
+                                }
+                                else
+                                {
+                                    j = -1;
+                                }
+                            }
+                            ptr = j;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine(sumTime);
+        }
+
         public static void Main(string[] args)
         {
             //A_Solution(Console.ReadLine(),Console.ReadLine());
+
+            //Console.WriteLine(C_Solution(Console.ReadLine()));
+
             //D_Solution(Console.ReadLine(), Console.ReadLine());
-            E_Solution(Console.ReadLine(), Console.ReadLine());
+
+            //E_Solution(Console.ReadLine(), Console.ReadLine());
+
+            F_Solution(Console.ReadLine(), Console.ReadLine());
         }
     }
 }
